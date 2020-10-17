@@ -12,6 +12,6 @@ public class SecondActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_second);
         int cost_id= getIntent().getIntExtra("COST_ID",0);
-        Log.e("TAG","COST_ID = "+cost_id);
+        Log.e("TAG","COST_ID = "+cost_id); // 1!
     }
 }
