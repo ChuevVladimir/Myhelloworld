@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name">LoftMoney</string>
     <string name="edittext_item_hint">Item</string>
-    <string name="edittext_cost_hint">Cost</string>
+    <string name="edittext_cost_hint">Value</string>
     <string name="button_add_text">Add</string>
+    <string name="rashod">expences</string>
+    <string name="dohod" >income</string>
+
 </resources>

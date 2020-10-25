@@ -15,12 +15,14 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:hint="@string/edittext_item_hint"
+    android:id="@+id/Item_text"
 
     ></EditText>
 
     <EditText
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:id="@+id/Value_text"
     android:hint="@string/edittext_cost_hint"
 
     > </EditText>
