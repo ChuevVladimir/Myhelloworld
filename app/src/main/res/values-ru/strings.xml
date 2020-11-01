@@ -5,4 +5,8 @@
     <string name="button_add_text">Добавить</string>
     <string name="rashod">Расходы</string>
     <string name="dohod" >Доходы</string>
+    <string name="connection_lost">"Не удалось загрузить данные "</string>
+    <string name="fill_fields">Заполните все поля</string>
+    <string name="success_added">Загружено</string>
+    <string name="activity_toolbar_title">Учёт бюджета</string>
 </resources>

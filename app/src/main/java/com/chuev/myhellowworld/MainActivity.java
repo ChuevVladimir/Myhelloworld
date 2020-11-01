@@ -14,6 +14,8 @@ import androidx.viewpager.widget.ViewPager;
 
 import android.content.Intent;
 import android.os.Bundle;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 import android.text.Layout;
 import android.view.View;
@@ -38,7 +40,13 @@ private BudgetPagerAdapter pagerAdapter;
 
 
         ViewPager viewPager = findViewById(R.id.fragment_ViewPager);
-
+        FloatingActionButton floatingActionButton = findViewById(R.id.fab);
+        floatingActionButton.setOnClickListener(v -> {
+            final int activeFragmenindex=viewPager.getCurrentItem();
+            Fragment activeFragment = getSupportFragmentManager().getFragments().get(activeFragmenindex);
+            Intent newActivity = new Intent(MainActivity.this, AddItemActivity.class);
+            activeFragment.startActivityForResult(newActivity, BudgetFragment.REQUEST_CODE);
+        });
 
         pagerAdapter = new BudgetPagerAdapter(getSupportFragmentManager(),FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
         pagerAdapter.addFragment(BudgetFragment.newInstance("синий"));
@@ -52,8 +60,12 @@ private BudgetPagerAdapter pagerAdapter;
 
         tabLayout.getTabAt(1).setText(R.string.dohod);
 
+        
+
 
     }
+
+
 
 
   private class BudgetPagerAdapter extends FragmentPagerAdapter

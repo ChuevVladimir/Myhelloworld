@@ -1,9 +1,10 @@
 package com.chuev.myhellowworld;
 
+import com.chuev.myhellowworld.remote.MoneyRemoteItem;
+
 public class MoneyItem {
     private String title;
     private String value;
-
     public MoneyItem(String title, String value) {
         this.title = title;
         this.value = value;
@@ -16,4 +17,10 @@ public class MoneyItem {
     public String getValue() {
         return value;
     }
+
+    public static MoneyItem getInstance (MoneyRemoteItem moneyRemoteItem)
+    {
+        return new MoneyItem(moneyRemoteItem.getName(), moneyRemoteItem.getPrice()+"РУБ");
+    }
+
 }

@@ -5,5 +5,9 @@
     <string name="button_add_text">Add</string>
     <string name="rashod">expences</string>
     <string name="dohod" >income</string>
+    <string name="connection_lost">"Sorry? we can't load your money list "</string>
+    <string name="fill_fields">Please fill all fields</string>
+    <string name="success_added">Success</string>
+    <string name="activity_toolbar_title">Учёт бюджета</string>
 
 </resources>

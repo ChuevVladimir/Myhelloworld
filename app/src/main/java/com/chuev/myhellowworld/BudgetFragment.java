@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
@@ -18,18 +19,28 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.chuev.myhellowworld.remote.MoneyRemoteItem;
+import com.chuev.myhellowworld.remote.MoneyResponse;
 import com.google.android.material.tabs.TabLayout;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
+
 public class BudgetFragment extends Fragment{
 
-    private static final int REQUEST_CODE = 100;
+   public static final int REQUEST_CODE = 100;
     List<MoneyItem> moneyItems = new ArrayList<>();
+    private CompositeDisposable compositeDisposable = new CompositeDisposable();
     private RecyclerView itemsView;
-
+    private SwipeRefreshLayout mSwipeRefreshLayout;
     private MoneyCellAdpter moneyCellAdpter =new MoneyCellAdpter();
 
     @Nullable
@@ -43,34 +54,22 @@ public class BudgetFragment extends Fragment{
 
 
 
-        view.findViewById(R.id.btnClick).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent newActivity = new Intent(getActivity(), AddItemActivity.class);
-                startActivityForResult(newActivity, REQUEST_CODE);
-
-            }
-        });
-
         return view;
     }
 
     @Override
-    public void onActivityResult( final int requestCode, final int resultCode, @Nullable final Intent data ) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        int value;
-        try {
-            value = Integer.parseInt(data.getStringExtra("value"));
-        } catch (NumberFormatException e) {
-           value = 0;
-        }
-
-        if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            moneyItems.add(new MoneyItem(data.getStringExtra("item"), data.getStringExtra("value")));
-            moneyCellAdpter.setData(moneyItems);
-        }
+    public void onDestroy() {
+        compositeDisposable.dispose();
+        super.onDestroy();
     }
+
+    @Override
+    public void onResume() {
+        generate_content();
+        super.onResume();
+    }
+
+
     private void initViews(View view) {
 
         if (getArguments().getString("test")=="синий")
@@ -96,16 +95,49 @@ public class BudgetFragment extends Fragment{
     private void generate_content()
     {
 
-        moneyItems.add(new MoneyItem("Стол","20000"));
-        moneyItems.add(new MoneyItem("Не стол","30000"));
-        moneyItems.add(new MoneyItem("Очень длиное название, да такое, что никуда не поместится","10000000"));
-        moneyItems.add(new MoneyItem("Ещё стол","2000"));
-        moneyCellAdpter.setData(moneyItems);
+moneyItems.clear();
+
+      Disposable disposable=((LoftApp) getActivity().getApplication()).moneyAPI.getmoneyitems("income")
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<MoneyResponse>() {
+                    @Override
+                    public void accept(MoneyResponse moneyResponse) throws Exception {
+
+                        if(moneyResponse.getStatus().equals("success")){
+for (MoneyRemoteItem moneyRemoteItem: moneyResponse.getMoneyItemsList())
+{moneyItems.add(MoneyItem.getInstance(moneyRemoteItem));
+mSwipeRefreshLayout.setRefreshing(false);
+}
+moneyCellAdpter.setData(moneyItems);
+                    }
+                        else {
+                            mSwipeRefreshLayout.setRefreshing(false);
+                            Toast.makeText(getActivity().getApplication(),getString(R.string.connection_lost),Toast.LENGTH_LONG).show();
+                        }
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                            Toast.makeText(getActivity().getApplication(),throwable.getLocalizedMessage(),Toast.LENGTH_LONG).show();
+                    }
+                });
+      compositeDisposable.add(disposable);
+
+
     }
 
     private void configureRecyclerView(View view) {
         itemsView = view.findViewById(R.id.itemsView);
         itemsView.setAdapter(moneyCellAdpter);
+        mSwipeRefreshLayout = view.findViewById(R.id.swipe_refresh);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                generate_content();
+            }
+        });
+
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL,false
         );
         itemsView.setLayoutManager(layoutManager);
