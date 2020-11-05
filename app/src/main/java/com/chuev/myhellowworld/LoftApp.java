@@ -2,6 +2,7 @@ package com.chuev.myhellowworld;
 
 import android.app.Application;
 
+import com.chuev.myhellowworld.remote.AuthAPI;
 import com.chuev.myhellowworld.remote.MoneyAPI;
 
 import okhttp3.OkHttpClient;
@@ -12,6 +13,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class LoftApp extends Application {
     public MoneyAPI moneyAPI;
+    public AuthAPI authAPI;
+    public static String AUTH_KEY=" ";
     @Override
     public void onCreate() {
         super.onCreate();
@@ -29,10 +32,11 @@ public class LoftApp extends Application {
 
         Retrofit retrofit = new Retrofit.Builder()
                 .client(okHttpClient)
-                .baseUrl("https://verdant-violet.glitch.me/")
+                .baseUrl("https://loftschool.com./android-api/basic/v1/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .build();
         moneyAPI = retrofit.create(MoneyAPI.class);
+        authAPI = retrofit.create(AuthAPI.class);
     }
 }

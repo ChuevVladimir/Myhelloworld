@@ -1,33 +1,27 @@
-package com.chuev.myhellowworld;
+package com.chuev.myhellowworld.main;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.chuev.myhellowworld.AddItemActivity;
+import com.chuev.myhellowworld.BudgetFragment;
+import com.chuev.myhellowworld.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
-import android.text.Layout;
-import android.view.View;
-import android.widget.TableLayout;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-private BudgetPagerAdapter pagerAdapter;
+//private BudgetPagerAdapter pagerAdapter;
 
 
     @Override
@@ -48,12 +42,12 @@ private BudgetPagerAdapter pagerAdapter;
             activeFragment.startActivityForResult(newActivity, BudgetFragment.REQUEST_CODE);
         });
 
-        pagerAdapter = new BudgetPagerAdapter(getSupportFragmentManager(),FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
-        pagerAdapter.addFragment(BudgetFragment.newInstance("синий"));
-        pagerAdapter.addFragment(BudgetFragment.newInstance("красный"));
+        //pagerAdapter = new BudgetPagerAdapter(getSupportFragmentManager(),FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
+        //pagerAdapter.addFragment(BudgetFragment.newInstance("синий"));
+        //pagerAdapter.addFragment(BudgetFragment.newInstance("красный"));
 
 
-        viewPager.setAdapter(pagerAdapter);
+//        viewPager.setAdapter(pagerAdapter);
 
         tabLayout.setupWithViewPager(viewPager);
         tabLayout.getTabAt(0).setText(R.string.rashod);

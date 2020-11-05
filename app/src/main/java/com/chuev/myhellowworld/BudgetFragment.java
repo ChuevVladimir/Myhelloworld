@@ -2,6 +2,7 @@ package com.chuev.myhellowworld;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -57,6 +58,8 @@ public class BudgetFragment extends Fragment{
         return view;
     }
 
+
+
     @Override
     public void onDestroy() {
         compositeDisposable.dispose();
@@ -96,26 +99,20 @@ public class BudgetFragment extends Fragment{
     {
 
 moneyItems.clear();
+        SharedPreferences sharedPreferences =getContext().getSharedPreferences(getString(R.string.app_name),0); ;
 
-      Disposable disposable=((LoftApp) getActivity().getApplication()).moneyAPI.getmoneyitems("income")
+      Disposable disposable=((LoftApp) getActivity().getApplication()).moneyAPI.getmoneyitems("income",sharedPreferences.getString(LoftApp.AUTH_KEY,""))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<MoneyResponse>() {
-                    @Override
-                    public void accept(MoneyResponse moneyResponse) throws Exception {
+                .subscribe( moneyRemoteItems -> {
 
-                        if(moneyResponse.getStatus().equals("success")){
-for (MoneyRemoteItem moneyRemoteItem: moneyResponse.getMoneyItemsList())
+
+for (MoneyRemoteItem moneyRemoteItem: moneyRemoteItems)
 {moneyItems.add(MoneyItem.getInstance(moneyRemoteItem));
 mSwipeRefreshLayout.setRefreshing(false);
 }
 moneyCellAdpter.setData(moneyItems);
-                    }
-                        else {
-                            mSwipeRefreshLayout.setRefreshing(false);
-                            Toast.makeText(getActivity().getApplication(),getString(R.string.connection_lost),Toast.LENGTH_LONG).show();
-                        }
-                    }
+
                 }, new Consumer<Throwable>() {
                     @Override
                     public void accept(Throwable throwable) throws Exception {

@@ -9,5 +9,6 @@
     <string name="fill_fields">Please fill all fields</string>
     <string name="success_added">Success</string>
     <string name="activity_toolbar_title">Учёт бюджета</string>
+    <string name="action_login">Login</string>
 
 </resources>
