@@ -2,6 +2,7 @@ package com.chuev.myhellowworld;
 
 import android.app.Application;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.os.Bundle;
@@ -85,12 +86,14 @@ public class AddItemActivity extends AppCompatActivity {
                     return;
                 }
 
-               Disposable disposable=((LoftApp) getApplication()).moneyAPI.postMoney(Integer.parseInt(value.toString()),item,"income")
+                SharedPreferences sharedPreferences =getSharedPreferences(getString(R.string.app_name),0); ;
+               Disposable disposable=((LoftApp) getApplication()).moneyAPI.postMoney(Integer.parseInt(value.toString()),item,"income",sharedPreferences.getString(LoftApp.AUTH_KEY,""))
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new Action() {
                             @Override
                             public void run() throws Exception {
+
                         Toast.makeText(getApplicationContext(),getString(R.string.success_added),Toast.LENGTH_LONG).show();
                        finish();
                             }

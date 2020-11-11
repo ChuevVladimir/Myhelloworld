@@ -14,7 +14,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class LoftApp extends Application {
     public MoneyAPI moneyAPI;
     public AuthAPI authAPI;
-    public static String AUTH_KEY=" ";
+    public static String AUTH_KEY="12314124gsdgdssh12141523563246";
     @Override
     public void onCreate() {
         super.onCreate();
@@ -32,7 +32,7 @@ public class LoftApp extends Application {
 
         Retrofit retrofit = new Retrofit.Builder()
                 .client(okHttpClient)
-                .baseUrl("https://loftschool.com./android-api/basic/v1/")
+                .baseUrl("https://loftschool.com/android-api/basic/v1/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .build();

@@ -18,14 +18,17 @@ import com.chuev.myhellowworld.main.MainActivity;
 
 public class LoginActivity extends AppCompatActivity {
     private LoginViewModel loginViewModel;
+
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState, @Nullable PersistableBundle persistentState) {
-        super.onCreate(savedInstanceState, persistentState);
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
         setContentView(R.layout.login_activity);
 
         configureView();
         configureViewModel();
     }
+
     private void configureView(){
         AppCompatButton loginEnterView = findViewById(R.id.loginbutton);
         loginEnterView.setOnClickListener(v -> {loginViewModel.makelogin(((LoftApp) getApplication()).authAPI );});
@@ -33,12 +36,12 @@ public class LoginActivity extends AppCompatActivity {
 
     private void configureViewModel(){
         loginViewModel =new ViewModelProvider(this).get(LoginViewModel.class);
-        loginViewModel.messageString.observe(this, error -> {
+        loginViewModel.messageString.observe(this,error  -> {
             if (!TextUtils.isEmpty(error)) {
-                Toast.makeText(getApplicationContext(), error, Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(),error , Toast.LENGTH_LONG).show();
             }});
 
-        loginViewModel.messageString.observe(this, authToken -> {
+        loginViewModel.authToken.observe(this, authToken -> {
             if (!TextUtils.isEmpty(authToken)) {
               SharedPreferences sharedPreferences= getSharedPreferences(getString(R.string.app_name),0);
                 sharedPreferences.edit().putString(LoftApp.AUTH_KEY,authToken).apply();

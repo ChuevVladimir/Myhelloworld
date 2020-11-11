@@ -10,5 +10,9 @@
     <string name="success_added">Success</string>
     <string name="activity_toolbar_title">Учёт бюджета</string>
     <string name="action_login">Login</string>
+    <string name="price_with_currency">%1$s ₽</string>
+    <string name="selected">Выделено: %1$s</string>
+    <string name="delete">Удалить</string>
+    <string name="delete_message">Вы действительно хотите удалить выбранные пункты?</string>
 
 </resources>

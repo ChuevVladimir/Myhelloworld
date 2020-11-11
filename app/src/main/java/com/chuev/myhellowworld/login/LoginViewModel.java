@@ -1,8 +1,12 @@
 package com.chuev.myhellowworld.login;
 
+import android.content.SharedPreferences;
+
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.chuev.myhellowworld.LoftApp;
+import com.chuev.myhellowworld.R;
 import com.chuev.myhellowworld.remote.AuthAPI;
 import com.chuev.myhellowworld.remote.AuthResponse;
 
@@ -23,20 +27,12 @@ public class LoginViewModel extends ViewModel {
 
     void makelogin(AuthAPI authAPI){
 
-        String userId ="324235235235";
-        compositeDisposable.add(authAPI.makelogin(userId)
+
+
+        compositeDisposable.add(authAPI.makelogin(LoftApp.AUTH_KEY)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<AuthResponse>() {
-                    @Override
-                    public void accept(AuthResponse authResponse) throws Exception {
-                    authToken.postValue((authResponse.getAuthToken()));
-                    }
-                }, new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable throwable) throws Exception {
-messageString.postValue(throwable.getLocalizedMessage());
-                    }
-                }));
+                .subscribe(authResponse -> {authToken.postValue(authResponse.getAuthToken());},
+                        throwable -> {messageString.postValue(throwable.getLocalizedMessage());}));
     }
 }

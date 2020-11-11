@@ -10,4 +10,5 @@
     <string name="success_added">Загружено</string>
     <string name="activity_toolbar_title">Учёт бюджета</string>
     <string name="action_login">Войти</string>
+    <string name="price_with_currency">%1$s ₽</string>
 </resources>

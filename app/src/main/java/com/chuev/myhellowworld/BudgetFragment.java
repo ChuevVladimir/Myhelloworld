@@ -1,11 +1,17 @@
 package com.chuev.myhellowworld;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -22,6 +28,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.chuev.myhellowworld.remote.MoneyAPI;
 import com.chuev.myhellowworld.remote.MoneyRemoteItem;
 import com.chuev.myhellowworld.remote.MoneyResponse;
 import com.google.android.material.tabs.TabLayout;
@@ -32,17 +39,23 @@ import java.util.List;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
-public class BudgetFragment extends Fragment{
+public class BudgetFragment extends Fragment implements ItemsAdapterListener, ActionMode.Callback {
 
    public static final int REQUEST_CODE = 100;
-    List<MoneyItem> moneyItems = new ArrayList<>();
+    private static final String COLOR_ID = "colorId";
+    private static final String TYPE = "fragmentType";
+
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
     private RecyclerView itemsView;
     private SwipeRefreshLayout mSwipeRefreshLayout;
-    private MoneyCellAdpter moneyCellAdpter =new MoneyCellAdpter();
+    private MoneyCellAdpter moneyCellAdpter ;
+    private ActionMode mActionMode;
+
+
 
     @Nullable
     @Override
@@ -51,12 +64,15 @@ public class BudgetFragment extends Fragment{
 
 
         generate_content();
+        moneyCellAdpter =new MoneyCellAdpter((getArguments().getInt(COLOR_ID)));
+        moneyCellAdpter.setListener(this);
         configureRecyclerView(view); //настраиваем ресайклер
 
 
 
         return view;
     }
+
 
 
 
@@ -72,46 +88,55 @@ public class BudgetFragment extends Fragment{
         super.onResume();
     }
 
-
-    private void initViews(View view) {
-
-        if (getArguments().getString("test")=="синий")
-        {
-            AppCompatTextView appCompatTextView = (AppCompatTextView) view.findViewById(R.id.cellmoneycost);
-            appCompatTextView.setTextColor( -16776961);
-
-        }
-        if (getArguments().getString("test")=="красный")
-        {
-            ((TextView) view.findViewById(R.id.cellmoneycost)).setTextColor(ContextCompat.getColor(getActivity(), R.color.black));
+    @Override
+    public void onItemClick(final MoneyItem item, final int position) {
+        moneyCellAdpter.clearItem(position);
+        if (mActionMode != null) {
+            mActionMode.setTitle(getString(R.string.selected, String.valueOf(moneyCellAdpter.getSelectedSize())));
         }
     }
 
-    public static BudgetFragment newInstance(String text) {
+    @Override
+    public void onItemLongClick(final MoneyItem item, final int position) {
+        if (mActionMode == null) {
+            getActivity().startActionMode(this);
+        }
+        moneyCellAdpter.toggleItem(position);
+        if (mActionMode != null) {
+            mActionMode.setTitle(getString(R.string.selected, String.valueOf(moneyCellAdpter.getSelectedSize())));
+        }
+    }
+
+
+
+    public static BudgetFragment newInstance(final int colorId, final String type) {
         BudgetFragment pageFragment = new BudgetFragment();
         Bundle bundle = new Bundle();
-        bundle.putString("test", text);
+        bundle.putInt(COLOR_ID, colorId);
+        bundle.putString(TYPE, type);
         pageFragment.setArguments(bundle);
 
         return pageFragment;
     }
-    private void generate_content()
+    public void generate_content()
     {
 
-moneyItems.clear();
-        SharedPreferences sharedPreferences =getContext().getSharedPreferences(getString(R.string.app_name),0); ;
+
+
+SharedPreferences sharedPreferences =getContext().getSharedPreferences(getString(R.string.app_name),0); ;
 
       Disposable disposable=((LoftApp) getActivity().getApplication()).moneyAPI.getmoneyitems("income",sharedPreferences.getString(LoftApp.AUTH_KEY,""))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe( moneyRemoteItems -> {
 
-
+                    moneyCellAdpter.clearItems();
 for (MoneyRemoteItem moneyRemoteItem: moneyRemoteItems)
-{moneyItems.add(MoneyItem.getInstance(moneyRemoteItem));
+{
+    moneyCellAdpter.addItem(MoneyItem.getInstance(moneyRemoteItem));
 mSwipeRefreshLayout.setRefreshing(false);
 }
-moneyCellAdpter.setData(moneyItems);
+
 
                 }, new Consumer<Throwable>() {
                     @Override
@@ -135,13 +160,83 @@ moneyCellAdpter.setData(moneyItems);
             }
         });
 
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL,false
+      RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL,false
         );
         itemsView.setLayoutManager(layoutManager);
 
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(itemsView.getContext(),LinearLayoutManager.VERTICAL);
         itemsView.addItemDecoration(dividerItemDecoration);
-//        initViews(view);
+
     }
 
+    @Override
+    public boolean onCreateActionMode(ActionMode mode, Menu menu)
+    {
+        mActionMode=mode;
+    return true;
+    }
+
+    @Override
+    public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+
+        MenuInflater menuInflater = new MenuInflater(getActivity());
+        menuInflater.inflate(R.menu.menu_delete,menu);
+        return true;
+    }
+
+    @Override
+    public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+        if (item.getItemId()==R.id.remove)
+        {new AlertDialog.Builder((getContext()))
+                .setMessage(R.string.delete_message)
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+removeItems();
+                    }
+                })
+                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                }).show();
+        };
+        return true;
+    }
+
+    private void removeItems() {
+        SharedPreferences sharedPreferences =getContext().getSharedPreferences(getString(R.string.app_name),0); ;
+        List<String> selectedItems =moneyCellAdpter.getSelectedItemIds();
+    for (String itemId:selectedItems)
+    {
+        Disposable disposable= ((LoftApp) getActivity().getApplication()).moneyAPI.removeItem(itemId,sharedPreferences.getString(LoftApp.AUTH_KEY,""))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action() {
+                    @Override
+                    public void run() throws Exception {
+
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+
+                    }
+                });
+        compositeDisposable.add(disposable);
+        moneyCellAdpter.clearSelections();
+        mActionMode.setTitle(getString(R.string.selected, String.valueOf(moneyCellAdpter.getSelectedSize())));
+        generate_content();
+        moneyCellAdpter.notifyDataSetChanged();
+
+    }
+
+    }
+
+    @Override
+    public void onDestroyActionMode(ActionMode mode) {
+        mActionMode=null;
+        moneyCellAdpter.clearSelections();
+    }
 }

@@ -18,28 +18,26 @@ public class SplashActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
-      //  SharedPreferences sharedPreferences= getSharedPreferences(getString(R.string.app_name),0);
-       // String authtoken = sharedPreferences.getString(LoftApp.AUTH_KEY,"");
-        String authtoken="";
-
-    //    Intent intent  = new Intent(getApplicationContext(),LoginActivity.class);
-     //   startActivity(intent);
-
-    //    if (TextUtils.isEmpty(authtoken))
-      //  {;
-
-         //   Intent intent  = new Intent(getApplicationContext(), LoginActivity.class);
-          //  startActivity(intent);
-           // finish();
-
-        //}
-        //else {;
+       SharedPreferences sharedPreferences= getSharedPreferences(getString(R.string.app_name),0);
+        String authtoken = sharedPreferences.getString(LoftApp.AUTH_KEY,"");
 
 
-        //    Intent intent  = new Intent(getApplicationContext(),MainActivity.class);
-         //   startActivity(intent);
-            //finish();
-       // }
+
+      if (TextUtils.isEmpty(authtoken))
+        {;
+
+          Intent intent  = new Intent(getApplicationContext(), LoginActivity.class);
+           startActivity(intent);
+           finish();
+
+        }
+        else {;
+
+
+         Intent intent  = new Intent(getApplicationContext(),MainActivity.class);
+            startActivity(intent);
+            finish();
+        }
 
 
     }
