@@ -14,14 +14,57 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+
     }
 
-    buildTypes {
+
+
+
+
+
+    signingConfigs {
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            storeFile file("release.jks")
+            storePassword "123456"
+            keyAlias "chuev"
+            keyPassword "123456"
         }
     }
+    buildTypes {
+
+        debug {
+            resValue "string", "app_name", "LM-debug"
+
+        }
+
+        release {
+      
+            resValue "string", "app_name", "LM-release"
+            signingConfig signingConfigs.release
+
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+
+
+
+
+    }
+
+flavorDimensions 'target'
+    productFlavors {
+
+        trial {
+
+        }
+
+        pro {
+
+
+        }
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8

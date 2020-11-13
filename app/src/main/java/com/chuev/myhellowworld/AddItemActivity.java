@@ -27,11 +27,27 @@ public class AddItemActivity extends AppCompatActivity {
     private String nName;
     private String nValue;
     private Button maddButton;
+    private static final String TYPE = "0";
+    private String type_of_op;
+    private Integer type_of_int;
+
     @Override
+
+
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_item);
+        Bundle arguments = getIntent().getExtras();
+        Integer type_of_int = (int) arguments.get("type");
 
+        if (type_of_int==0) {
+            type_of_op="expense";
+
+        }
+        else
+        {
+            type_of_op="income";
+        }
 
 
         ItemText = findViewById(R.id.Item_text);
@@ -52,6 +68,9 @@ public class AddItemActivity extends AppCompatActivity {
                 checkEditTextHasText();
             }
         });
+
+
+
         ValueText = findViewById(R.id.Value_text);
         ValueText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -87,7 +106,7 @@ public class AddItemActivity extends AppCompatActivity {
                 }
 
                 SharedPreferences sharedPreferences =getSharedPreferences(getString(R.string.app_name),0); ;
-               Disposable disposable=((LoftApp) getApplication()).moneyAPI.postMoney(Integer.parseInt(value.toString()),item,"income",sharedPreferences.getString(LoftApp.AUTH_KEY,""))
+               Disposable disposable=((LoftApp) getApplication()).moneyAPI.postMoney(Integer.parseInt(value.toString()),item,type_of_op,sharedPreferences.getString(LoftApp.AUTH_KEY,""))
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new Action() {
@@ -95,6 +114,7 @@ public class AddItemActivity extends AppCompatActivity {
                             public void run() throws Exception {
 
                         Toast.makeText(getApplicationContext(),getString(R.string.success_added),Toast.LENGTH_LONG).show();
+
                        finish();
                             }
                         }, new Consumer<Throwable>() {
@@ -114,6 +134,8 @@ public void checkEditTextHasText()
 {
 maddButton.setEnabled(!TextUtils.isEmpty(nName)&&!TextUtils.isEmpty(nValue));
 }
+
+
 
 }
 

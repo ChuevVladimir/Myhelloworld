@@ -26,7 +26,7 @@ public class MoneyItem {
 
     public static MoneyItem getInstance (MoneyRemoteItem moneyRemoteItem)
     {
-        return new MoneyItem(moneyRemoteItem.getItemId(), moneyRemoteItem.getName(), moneyRemoteItem.getPrice()+"РУБ");
+        return new MoneyItem(moneyRemoteItem.getItemId(), moneyRemoteItem.getName(), String.valueOf(moneyRemoteItem.getPrice()));
     }
 
 }

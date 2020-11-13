@@ -28,6 +28,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.chuev.myhellowworld.main.MainActivity;
 import com.chuev.myhellowworld.remote.MoneyAPI;
 import com.chuev.myhellowworld.remote.MoneyRemoteItem;
 import com.chuev.myhellowworld.remote.MoneyResponse;
@@ -54,7 +55,7 @@ public class BudgetFragment extends Fragment implements ItemsAdapterListener, Ac
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private MoneyCellAdpter moneyCellAdpter ;
     private ActionMode mActionMode;
-
+    private String type_of_op;
 
 
     @Nullable
@@ -63,13 +64,17 @@ public class BudgetFragment extends Fragment implements ItemsAdapterListener, Ac
         View view = inflater.inflate(R.layout.fragment_udget,container,false);
 
 
-        generate_content();
+
         moneyCellAdpter =new MoneyCellAdpter((getArguments().getInt(COLOR_ID)));
         moneyCellAdpter.setListener(this);
+
         configureRecyclerView(view); //настраиваем ресайклер
 
-
-
+        Bundle bundle = this.getArguments();
+        if (bundle != null) {
+            type_of_op = bundle.getString(TYPE, "2");
+        }
+        generate_content();
         return view;
     }
 
@@ -84,7 +89,7 @@ public class BudgetFragment extends Fragment implements ItemsAdapterListener, Ac
 
     @Override
     public void onResume() {
-        generate_content();
+       generate_content();
         super.onResume();
     }
 
@@ -121,33 +126,61 @@ public class BudgetFragment extends Fragment implements ItemsAdapterListener, Ac
     public void generate_content()
     {
 
+     get_items(type_of_op);
 
 
-SharedPreferences sharedPreferences =getContext().getSharedPreferences(getString(R.string.app_name),0); ;
+    }
 
-      Disposable disposable=((LoftApp) getActivity().getApplication()).moneyAPI.getmoneyitems("income",sharedPreferences.getString(LoftApp.AUTH_KEY,""))
+    private void get_items (String type)
+    {
+        SharedPreferences sharedPreferences =getContext().getSharedPreferences(getString(R.string.app_name),0); ;
+
+
+
+        Disposable disposable=((LoftApp) getActivity().getApplication()).moneyAPI.getmoneyitems(type,sharedPreferences.getString(LoftApp.AUTH_KEY,""))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe( moneyRemoteItems -> {
 
                     moneyCellAdpter.clearItems();
-for (MoneyRemoteItem moneyRemoteItem: moneyRemoteItems)
-{
-    moneyCellAdpter.addItem(MoneyItem.getInstance(moneyRemoteItem));
-mSwipeRefreshLayout.setRefreshing(false);
-}
+                    for (MoneyRemoteItem moneyRemoteItem: moneyRemoteItems)
+                    {
+                        moneyCellAdpter.addItem(MoneyItem.getInstance(moneyRemoteItem));
+
+                    }
+
+                    if (type_of_op == "income") {
+                        MainActivity.income_float = moneyCellAdpter.sum();
 
 
+                    }
+                    else
+                    {
+                        MainActivity.expense_float = moneyCellAdpter.sum();
+                    }
+                    mSwipeRefreshLayout.setRefreshing(false);
                 }, new Consumer<Throwable>() {
                     @Override
                     public void accept(Throwable throwable) throws Exception {
-                            Toast.makeText(getActivity().getApplication(),throwable.getLocalizedMessage(),Toast.LENGTH_LONG).show();
+                        Toast.makeText(getActivity().getApplication(),throwable.getLocalizedMessage(),Toast.LENGTH_LONG).show();
+                        mSwipeRefreshLayout.setRefreshing(false);
+                        if (type_of_op == "income") {
+                            MainActivity.income_float = moneyCellAdpter.sum();
+
+
+                        }
+                        else
+                        {
+                            MainActivity.expense_float = moneyCellAdpter.sum();
+                        }
                     }
                 });
-      compositeDisposable.add(disposable);
+        compositeDisposable.add(disposable);
+        moneyCellAdpter.notifyDataSetChanged();
 
 
     }
+
 
     private void configureRecyclerView(View view) {
         itemsView = view.findViewById(R.id.itemsView);
@@ -216,19 +249,22 @@ removeItems();
                 .subscribe(new Action() {
                     @Override
                     public void run() throws Exception {
-
+                        moneyCellAdpter.clearSelections();
+                        mActionMode.setTitle(getString(R.string.selected, String.valueOf(moneyCellAdpter.getSelectedSize())));
+                        generate_content();
+                        moneyCellAdpter.notifyDataSetChanged();
                     }
                 }, new Consumer<Throwable>() {
                     @Override
                     public void accept(Throwable throwable) throws Exception {
-
+                        moneyCellAdpter.clearSelections();
+                        mActionMode.setTitle(getString(R.string.selected, String.valueOf(moneyCellAdpter.getSelectedSize())));
+                        generate_content();
+                        moneyCellAdpter.notifyDataSetChanged();
                     }
                 });
         compositeDisposable.add(disposable);
-        moneyCellAdpter.clearSelections();
-        mActionMode.setTitle(getString(R.string.selected, String.valueOf(moneyCellAdpter.getSelectedSize())));
-        generate_content();
-        moneyCellAdpter.notifyDataSetChanged();
+
 
     }
 
