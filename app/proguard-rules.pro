@@ -19,3 +19,7 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+-keep class com.chuev.myhellowworld.remote.MoneyRemoteItem {*;}
+-keep class com.chuev.myhellowworld.remote.AuthResponse {*;}
+-keep class com.chuev.myhellowworld.remote.MoneyResponse {*;}

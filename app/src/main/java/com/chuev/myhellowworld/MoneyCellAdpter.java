@@ -26,6 +26,8 @@ public class MoneyCellAdpter extends RecyclerView.Adapter<MoneyCellAdpter.ItemVi
         notifyDataSetChanged();
     }
 
+
+
     public void toggleItem(final int position) {
         mSelectedItems.put(position, !mSelectedItems.get(position));
         notifyDataSetChanged();
@@ -93,6 +95,16 @@ public class MoneyCellAdpter extends RecyclerView.Adapter<MoneyCellAdpter.ItemVi
     @Override
     public int getItemCount() {
         return mItemsList.size();
+    }
+
+    public float sum ()
+    {
+        float result=0;
+
+        for (MoneyItem mI : mItemsList) {
+            result=result+Float.parseFloat(mI.getValue());
+        }
+        return result;
     }
 
     static class ItemViewHolder extends RecyclerView.ViewHolder {
